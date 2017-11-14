@@ -136,8 +136,7 @@ class simp_grafana (
   String                        $admin_pw                = passgen('grafana'),
   String                        $app_pki_dir             = '/etc/pki/simp_apps/grafana/x509',
   String                        $app_pki_key             = "${app_pki_dir}/private/${facts['fqdn']}.pem",
-  String                        $app_pki_cert            = "${app_pki_dir}/public/${facts['fqdn']}.pub",
- ) {
+  Boolean                       $basic                   = false,
 
   #assert_metadata_os()
 
@@ -155,10 +154,10 @@ class simp_grafana (
     },
     # users        => {
     #   allow_sign_up    => false,
-    #   allow_org_create => true,
+   #   allow_org_create => true,
     #   auto_assign_org  => true,
     # },
-    # 'auth.basic' => { enabled => false },
+    'auth.basic' => { enabled => $basic },
     'auth.ldap'  => { enabled => $ldap },
     #Allows SIMP dashboards to be read from the file system
     # 'dashboards.json' => { enabled => true },
