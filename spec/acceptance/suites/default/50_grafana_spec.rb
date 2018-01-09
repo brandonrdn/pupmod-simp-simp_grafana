@@ -9,7 +9,7 @@ elasticsearch_server = only_host_with_role(hosts, 'elasticsearch_server')
 elasticsearch_fqdn   = fact_on(elasticsearch_server, 'fqdn')
 grafana              = only_host_with_role(hosts, 'grafana')
 grafana_fqdn         = fact_on(grafana, 'fqdn')
-grafana_port         = "8443"
+grafana_port         = '8443'
 
 describe 'the grafana server' do
   before(:all) do
@@ -213,7 +213,8 @@ describe 'the grafana server' do
     let(:manifest) do
       <<-EOS
         class { 'simp_grafana':
-          cfg => { 'auth.basic' => { enabled => true }, 'auth.ldap' => { enabled => true } },
+          ldap => true,
+          cfg  => { 'auth.basic' => { enabled => true } },
         }
 
         # Allow SSH from the standard Vagrant nets
@@ -356,13 +357,6 @@ describe 'the grafana server' do
 
     it 'is idempotent' do
       apply_manifest_on grafana, manifest, :catch_changes => true
-    end
-
-    it 'acts as a proxy to Elasticsearch' do
-      es_test_args = curl_rest_args
-      es_test_args << "https://admin:admin@#{grafana_fqdn}:#{grafana_port}/api/datasources/proxy/1/logstash-#{Time.now.utc.strftime('%Y.%m.%d')}/_stats"
-      curl_output = curl_on(grafana, es_test_args).stdout
-      expect(curl_output).to match(/_shards/)
     end
   end
 
